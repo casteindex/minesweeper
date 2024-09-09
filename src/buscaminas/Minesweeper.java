@@ -12,6 +12,7 @@ import java.util.Random;
  */
 public class Minesweeper {
 
+    public static Random random = new Random();
     public static char[][] tablero = new char[9][9];
 
     public static void main(String[] args) {
@@ -34,7 +35,6 @@ public class Minesweeper {
                 if (tablero[i][j] == 'B') {
                     continue;
                 }
-
                 // Loop sobre las celdas vecinas (di, dj) in range [-1, 0, 1]
                 cuenta = 0;
                 for (int di = -1; di <= 1; di++) {
@@ -43,7 +43,6 @@ public class Minesweeper {
                         if (di == 0 && dj == 0) {
                             continue;
                         }
-
                         /* Asegurarse de que el vecino esté dentro de la matriz
                         para evitar OutOfBoundExceptions */
                         int filaVecino = i + di;
@@ -71,16 +70,13 @@ public class Minesweeper {
     private static void colocarMina() {
         /* Verificar que la bomba colocada no tome el lugar de otra. Es decir,
         solo se puede agregar una bomba en una celda vacía */
-        Random random = new Random();
-        int fila, columna;
-        while (true) {
-            fila = random.nextInt(0, tablero.length);
-            columna = random.nextInt(0, tablero[0].length);
-            if (tablero[fila][columna] != 'B') {
-                tablero[fila][columna] = 'B';
-                break;
-            }
+        int fila = random.nextInt(tablero.length);
+        int columna = random.nextInt(tablero[0].length);
+        if (tablero[fila][columna] != 'B') {
+            tablero[fila][columna] = 'B';
+            return;
         }
+        colocarMina();
     }
 
     private static void inicializarTablero() {

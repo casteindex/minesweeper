@@ -10,7 +10,7 @@ import java.util.Random;
  *
  * @author Alejandro
  */
-public class Buscaminas {
+public class Minesweeper {
 
     public static char[][] tablero = new char[9][9];
 

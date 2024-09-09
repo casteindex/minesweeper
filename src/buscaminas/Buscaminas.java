@@ -12,10 +12,11 @@ import java.util.Random;
  */
 public class Buscaminas {
 
-    public static int[][] tablero = new int[9][9];
+    public static char[][] tablero = new char[9][9];
 
     public static void main(String[] args) {
 
+        inicializarTablero();
         generarMinas();
         printTablero();
 
@@ -29,8 +30,18 @@ public class Buscaminas {
     }
 
     private static void colocarMina() {
+        /* Verificar que la bomba colocada no tome el lugar de otra. Es decir,
+        solo se puede agregar una bomba en una celda vacía */
         Random random = new Random();
-
+        int fila, columna;
+        while (true) {
+            fila = random.nextInt(0, tablero.length);
+            columna = random.nextInt(0, tablero[0].length);
+            if (tablero[fila][columna] != 'B') {
+                tablero[fila][columna] = 'B';
+                break;
+            }
+        }
     }
 
     private static void inicializarTablero() {
@@ -39,7 +50,7 @@ public class Buscaminas {
         número de bombas adyacentes para cada celda */
         for (int i = 0; i < tablero.length; i++) {
             for (int j = 0; j < tablero[0].length; j++) {
-                tablero[i][j] = 0;
+                tablero[i][j] = ' ';
             }
         }
     }

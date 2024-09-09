@@ -18,8 +18,47 @@ public class Minesweeper {
 
         inicializarTablero();
         generarMinas();
+        cantidadMinas();
         printTablero();
 
+    }
+
+    private static void cantidadMinas() {
+        int filas = tablero.length;
+        int columnas = tablero[0].length;
+        int cuenta;
+
+        for (int i = 0; i < filas; i++) {
+            for (int j = 0; j < columnas; j++) {
+                // Si la celda tiene una bomba, saltarla
+                if (tablero[i][j] == 'B') {
+                    continue;
+                }
+
+                // Loop sobre las celdas vecinas (di, dj) in range [-1, 0, 1]
+                cuenta = 0;
+                for (int di = -1; di <= 1; di++) {
+                    for (int dj = -1; dj <= 1; dj++) {
+                        // Saltar el centro de la celda
+                        if (di == 0 && dj == 0) {
+                            continue;
+                        }
+
+                        /* Asegurarse de que el vecino esté dentro de la matriz
+                        para evitar OutOfBoundExceptions */
+                        int filaVecino = i + di;
+                        int columnaVecino = j + dj;
+                        if (filaVecino >= 0 && filaVecino < filas
+                                && columnaVecino >= 0 && columnaVecino < columnas) {
+                            if (tablero[filaVecino][columnaVecino] == 'B') {
+                                cuenta++;
+                            }
+                        }
+                    }
+                }
+                tablero[i][j] = (char) (cuenta + '0');
+            }
+        }
     }
 
     private static void generarMinas() {

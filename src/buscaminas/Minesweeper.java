@@ -4,22 +4,29 @@
  */
 package buscaminas;
 
-import java.util.Random;
-
 /**
  *
  * @author Alejandro
  */
 public class Minesweeper {
 
-    public static Random random = new Random();
-    public static char[][] tablero = new char[9][9];
-
     public static void main(String[] args) {
 
-        Tablero tablero = new Tablero(9, 9, 10);
-        tablero.randomize();
-        tablero.print();
+        int filas = 9;
+        int columnas = 9;
+        int minas = 9;
+
+        // Generar tablero secreto
+        TableroSecreto tableroSecreto = new TableroSecreto(filas, columnas, minas);
+        tableroSecreto.randomize();
+        tableroSecreto.print();
+
+        System.out.println();
+
+        // TableroSecreto mostrado
+        TableroMostrado tableroMostrado = new TableroMostrado(filas, columnas, tableroSecreto);
+        tableroMostrado.setVacio();
+        tableroMostrado.print();
 
     }
 

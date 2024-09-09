@@ -10,17 +10,19 @@ import java.util.Random;
  *
  * @author Alejandro
  */
-public class Tablero {
+public class TableroSecreto {
+
+    private static final Random random = new Random();
 
     // Atributos
     private final int filas;
     private final int columnas;
     private final int minas;
     private final char[][] matriz;
-    private static final char BOMBA = 'B';
+    private static final char MINA = 'M';
 
     // Constructor
-    public Tablero(int filas, int columnas, int minas) {
+    public TableroSecreto(int filas, int columnas, int minas) {
         this.filas = filas;
         this.columnas = columnas;
         this.minas = minas;
@@ -46,7 +48,7 @@ public class Tablero {
 
     // Métodos
     public void randomize() {
-        // Generar bombas
+        // Generar minas
         for (int i = 0; i < minas; i++) {
             colocarMina();
         }
@@ -54,11 +56,10 @@ public class Tablero {
     }
 
     private void colocarMina() {
-        Random random = new Random();
         int fila = random.nextInt(filas);
         int columna = random.nextInt(columnas);
-        if (matriz[fila][columna] != BOMBA) {
-            matriz[fila][columna] = BOMBA;
+        if (matriz[fila][columna] != MINA) {
+            matriz[fila][columna] = MINA;
             return;
         }
         colocarMina();
@@ -66,11 +67,10 @@ public class Tablero {
 
     private void generarNumeros() {
         int cuenta;
-
         for (int i = 0; i < filas; i++) {
             for (int j = 0; j < columnas; j++) {
                 // Si la celda tiene una mina, saltarla
-                if (matriz[i][j] == BOMBA) {
+                if (matriz[i][j] == MINA) {
                     continue;
                 }
                 cuenta = 0;
@@ -83,11 +83,11 @@ public class Tablero {
                         }
                         /* Asegurarse de que la celda evaluada esté dentro de la
                         matriz para evitar OutOfBoundExceptions */
-                        int filVecino = i + di;
-                        int colVecino = j + dj;
-                        if (filVecino >= 0 && filVecino < filas
-                                && colVecino >= 0 && colVecino < columnas) {
-                            if (matriz[filVecino][colVecino] == BOMBA) {
+                        int filaVecino = i + di;
+                        int columnaVecino = j + dj;
+                        if (filaVecino >= 0 && filaVecino < filas
+                                && columnaVecino >= 0 && columnaVecino < columnas) {
+                            if (matriz[filaVecino][columnaVecino] == MINA) {
                                 cuenta++;
                             }
                         }

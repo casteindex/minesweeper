@@ -19,7 +19,7 @@ public class TableroSecreto {
     private final int columnas;
     private final int minas;
     private final char[][] matriz;
-    private static final char MINA = 'M';
+    private static final char BOMBA = 'B';
 
     // Constructor
     public TableroSecreto(int filas, int columnas, int minas) {
@@ -58,8 +58,8 @@ public class TableroSecreto {
     private void colocarMina() {
         int fila = random.nextInt(filas);
         int columna = random.nextInt(columnas);
-        if (matriz[fila][columna] != MINA) {
-            matriz[fila][columna] = MINA;
+        if (matriz[fila][columna] != BOMBA) {
+            matriz[fila][columna] = BOMBA;
             return;
         }
         colocarMina();
@@ -70,7 +70,7 @@ public class TableroSecreto {
         for (int i = 0; i < filas; i++) {
             for (int j = 0; j < columnas; j++) {
                 // Si la celda tiene una mina, saltarla
-                if (matriz[i][j] == MINA) {
+                if (matriz[i][j] == BOMBA) {
                     continue;
                 }
                 cuenta = 0;
@@ -87,7 +87,7 @@ public class TableroSecreto {
                         int columnaVecino = j + dj;
                         if (filaVecino >= 0 && filaVecino < filas
                                 && columnaVecino >= 0 && columnaVecino < columnas) {
-                            if (matriz[filaVecino][columnaVecino] == MINA) {
+                            if (matriz[filaVecino][columnaVecino] == BOMBA) {
                                 cuenta++;
                             }
                         }

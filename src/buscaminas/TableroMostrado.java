@@ -15,8 +15,10 @@ public class TableroMostrado {
     private final int columnas;
     private final char[][] matriz;
     private final char[][] matrizSecreta;
-    private static final char BOMBA = 'B';
+    private static final char MINA = 'M';
     private static final char FLAG = 'F';
+    private static final char CERO = '0';
+    private static final char VACIO = ' ';
 
     // Constructor
     public TableroMostrado(int filas, int columnas, TableroSecreto tableroSecreto) {
@@ -24,6 +26,7 @@ public class TableroMostrado {
         this.columnas = columnas;
         this.matriz = new char[filas][columnas];
         this.matrizSecreta = tableroSecreto.getMatriz();
+        inicializarMatriz();
     }
 
     // Getters
@@ -44,18 +47,18 @@ public class TableroMostrado {
     }
 
     // Métodos
-    public void setVacio() {
+    public void inicializarMatriz() {
         for (int i = 0; i < filas; i++) {
             for (int j = 0; j < columnas; j++) {
-                matriz[i][j] = ' ';
+                matriz[i][j] = VACIO;
             }
         }
     }
 
     public boolean descubrir(int x, int y) {
         // Si tiene una bomba
-        if (matrizSecreta[x][y] == BOMBA) {
-            matriz[x][y] = BOMBA;
+        if (matrizSecreta[x][y] == MINA) {
+            matriz[x][y] = MINA;
             return false; // Usuario perdió el juego
         }
 
@@ -63,42 +66,46 @@ public class TableroMostrado {
         matriz[x][y] = matrizSecreta[x][y];
 
         // Si tiene un cero (mostrar todos los otros ceros y celdas vecinas)
-        if (matrizSecreta[x][y] == '0') {
+        if (matrizSecreta[x][y] == CERO) {
             descubrirCeros(x, y);
         }
         return true; // El juego continúa
     }
 
-    private void descubrirCeros(int x, int y) {
+    private void descubrirCeros(int fila, int columna) {
         for (int di = -1; di <= 1; di++) {
             for (int dj = -1; dj <= 1; dj++) {
-                // Saltar el centro de la celda
-                if (di == 0 && dj == 0) {
+                if (di == 0 && dj == 0) { // Saltar el centro de la celda
                     continue;
                 }
-                /* Asegurarse de que la celda evaluada esté dentro de la matriz
-                para evitar OutOfBoundExceptions */
-                int filaVecino = x + di;
-                int columnaVecino = y + dj;
-                if (filaVecino >= 0 && filaVecino < filas
-                        && columnaVecino >= 0 && columnaVecino < columnas
-                        && matriz[filaVecino][columnaVecino] == ' ') {
-                    matriz[filaVecino][columnaVecino] = matrizSecreta[filaVecino][columnaVecino];
-                    if (matriz[filaVecino][columnaVecino] == '0') {
-                        descubrirCeros(filaVecino, columnaVecino);
+
+                int newFila = fila + di;
+                int newCol = columna + dj;
+
+                if (esValido(newFila, newCol) && matriz[newFila][newCol] == VACIO) {
+                    matriz[newFila][newCol] = matrizSecreta[newFila][newCol];
+
+                    if (matriz[newFila][newCol] == CERO) {
+                        descubrirCeros(newFila, newCol);
                     }
                 }
             }
         }
     }
 
-    public void flag(int fila, int columna) {
+    private boolean esValido(int fila, int columna) {
+        /* Asegurarse de que la celda evaluada esté dentro de la matriz para
+        evitar OutOfBoundExceptions */
+        return fila >= 0 && fila < filas && columna >= 0 && columna < columnas;
+    }
+
+    public void flag(int x, int y) {
         /* Poner una bandera si la celda está vacía, quitarla si ya tiene una, si
         se elige una celda ya mostrada, no hacer nada */
-        if (matriz[fila][columna] == ' ') {
-            matriz[fila][columna] = FLAG;
-        } else if (matriz[fila][columna] == FLAG) {
-            matriz[fila][columna] = ' ';
+        if (matriz[x][y] == VACIO) {
+            matriz[x][y] = FLAG;
+        } else if (matriz[x][y] == FLAG) {
+            matriz[x][y] = VACIO;
         }
     }
 

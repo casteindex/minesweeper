@@ -19,7 +19,8 @@ public class TableroSecreto {
     private final int columnas;
     private final int minas;
     private final char[][] matriz;
-    private static final char BOMBA = 'B';
+    private static final char MINA = 'M';
+    private static final char CERO = '0';
 
     // Constructor
     public TableroSecreto(int filas, int columnas, int minas) {
@@ -56,10 +57,10 @@ public class TableroSecreto {
     }
 
     private void colocarMina() {
-        int fila = random.nextInt(filas);
-        int columna = random.nextInt(columnas);
-        if (matriz[fila][columna] != BOMBA) {
-            matriz[fila][columna] = BOMBA;
+        int x = random.nextInt(filas);
+        int y = random.nextInt(columnas);
+        if (matriz[x][y] != MINA) {
+            matriz[x][y] = MINA;
             return;
         }
         colocarMina();
@@ -69,33 +70,36 @@ public class TableroSecreto {
         int cuenta;
         for (int i = 0; i < filas; i++) {
             for (int j = 0; j < columnas; j++) {
-                // Si la celda tiene una mina, saltarla
-                if (matriz[i][j] == BOMBA) {
+                if (matriz[i][j] == MINA) { // Ignorar celdas con minas
                     continue;
                 }
+
                 cuenta = 0;
-                // Ciclo sobre celdas vecinas (di, dj) para [-1, 0, 1]
                 for (int di = -1; di <= 1; di++) {
                     for (int dj = -1; dj <= 1; dj++) {
-                        // Saltar el centro de la celda
-                        if (di == 0 && dj == 0) {
+                        if (di == 0 && dj == 0) { // Saltar el centro de la celda
                             continue;
                         }
-                        /* Asegurarse de que la celda evaluada esté dentro de la
-                        matriz para evitar OutOfBoundExceptions */
-                        int filaVecino = i + di;
-                        int columnaVecino = j + dj;
-                        if (filaVecino >= 0 && filaVecino < filas
-                                && columnaVecino >= 0 && columnaVecino < columnas) {
-                            if (matriz[filaVecino][columnaVecino] == BOMBA) {
+
+                        int newFila = i + di;
+                        int newCol = j + dj;
+
+                        if (esValido(newFila, newCol)) {
+                            if (matriz[newFila][newCol] == MINA) {
                                 cuenta++;
                             }
                         }
                     }
                 }
-                matriz[i][j] = (char) (cuenta + '0');
+                matriz[i][j] = (char) (cuenta + CERO);
             }
         }
+    }
+
+    private boolean esValido(int fila, int columna) {
+        /* Asegurarse de que la celda evaluada esté dentro de la matriz para
+        evitar OutOfBoundExceptions */
+        return fila >= 0 && fila < filas && columna >= 0 && columna < columnas;
     }
 
     public void print() {

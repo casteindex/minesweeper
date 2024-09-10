@@ -30,7 +30,7 @@ public class Buscaminas {
 
         // TableroSecreto mostrado
         TableroMostrado tableroMostrado = new TableroMostrado(filas, columnas, tableroSecreto);
-        tableroMostrado.setVacio();
+        tableroMostrado.inicializarMatriz();
 
         /* ========== NOTA ==========
         Esta parte del código se removerá luego cuando se haga el GUI, por

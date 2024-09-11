@@ -32,6 +32,8 @@ public class Buscaminas {
         TableroMostrado tableroMostrado = new TableroMostrado(filas, columnas, tableroSecreto);
         tableroMostrado.inicializarMatriz();
 
+        GUI gui = new GUI(filas, columnas, tableroSecreto);
+        
         /* ========== NOTA ==========
         Esta parte del código se removerá luego cuando se haga el GUI, por
         el momento se está imprimiendo en pantalla para definir la lógica del juego.*/

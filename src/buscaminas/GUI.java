@@ -4,38 +4,34 @@
  */
 package buscaminas;
 
-import java.awt.Dimension;
-import java.awt.GridLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import javax.swing.JButton;
-import javax.swing.JFrame;
-import javax.swing.JPanel;
+import java.awt.*;
+import java.awt.event.*;
+import javax.swing.*;
 
 /**
  *
  * @author Alejandro
  */
-public class GUI implements ActionListener {
+public class GUI {
 
     // Atributos
-    int filas;
-    int columnas;
+    private final int filas;
+    private final int columnas;
     private final char[][] matrizSecreta;
-    private static final char MINA = 'M';
-    private static final char FLAG = 'F';
-    private static final char CERO = '0';
-    private static final char VACIO = ' ';
+    private final char MINA = 'M';
+    private final char FLAG = 'F';
+    private final char CERO = '0';
+    private final char VACIO = ' ';
 
     JFrame frame = new JFrame();
     JPanel minas_panel = new JPanel();
     JButton[][] matriz;
 
     // Constructor
-    public GUI(int filas, int columnas, TableroSecreto tableroSecreto) {
-        this.filas = filas;
-        this.columnas = columnas;
+    public GUI(TableroSecreto tableroSecreto) {
         this.matrizSecreta = tableroSecreto.getMatriz();
+        this.filas = matrizSecreta.length;
+        this.columnas = matrizSecreta[0].length;
         this.matriz = new JButton[filas][columnas]; // Inicializar matriz de botones
 
         // JFrame
@@ -44,39 +40,25 @@ public class GUI implements ActionListener {
 
         // Minas JPanel
         minas_panel.setLayout(new GridLayout(filas, columnas));
-        for (int i = 0; i < filas; i++) {
-            for (int j = 0; j < columnas; j++) {
-
-                JButton button = new JButton("");
-                button.setFocusPainted(false); // Elimina rectángulo de enfoque
-                button.setPreferredSize(new Dimension(45, 45));
-
-                matriz[i][j] = button;
-                minas_panel.add(button);
-
-                matriz[i][j].addActionListener(this);
-            }
-        }
+        llenarButtonPanel();
 
         frame.pack(); // JFrame ajustado al contenido
         frame.setLocationRelativeTo(null); // Centrar ventana al ejecutar
         frame.setVisible(true); // Mostrar JFrame después de agregar el contenido
-
     }
 
-    @Override
-    public void actionPerformed(ActionEvent e) {
-        for (int i = 0; i < filas; i++) {
-            for (int j = 0; j < columnas; j++) {
-                if (e.getSource() == matriz[i][j]) {
-                    descubrir(i, j);
-//                    matriz[i][j].setText(Character.toString(matrizSecreta[i][j]));
-                }
-            }
-        }
-
-    }
-
+//    @Override
+//    public void actionPerformed(ActionEvent e) {
+//        for (int i = 0; i < filas; i++) {
+//            for (int j = 0; j < columnas; j++) {
+//                if (e.getSource() == matriz[i][j]) {
+//                    if (!descubrir(i, j)) { // Devuelve si perdió
+//                        System.out.println("Game Over!");
+//                    }
+//                }
+//            }
+//        }
+//    }
     public boolean descubrir(int x, int y) {
         // Si tiene una bomba
         if (matrizSecreta[x][y] == MINA) {
@@ -119,6 +101,38 @@ public class GUI implements ActionListener {
         /* Asegurarse de que la celda evaluada esté dentro de la matriz para
         evitar OutOfBoundExceptions */
         return fila >= 0 && fila < filas && columna >= 0 && columna < columnas;
+    }
+
+    private void llenarButtonPanel() {
+        for (int i = 0; i < filas; i++) {
+            for (int j = 0; j < columnas; j++) {
+
+                JButton button = new JButton("");
+                button.setFocusPainted(false); // Elimina rectángulo de enfoque
+                button.setPreferredSize(new Dimension(45, 45));
+
+                matriz[i][j] = button;
+                minas_panel.add(button);
+
+                /* Nota: para inner classes (clases anónimas) como el ActionListener,
+                Java necesita que los parámetros sean finales (o "efectivamente finales")
+                por lo que no se pueden usar `i` y `j` porque se siguen modificando
+                en el for loop. Copiandolas, se hacen "efectivamente finales"*/
+                final int fila = i;
+                final int columna = j;
+
+                // Click normal
+                matriz[i][j].addActionListener(new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        if (!descubrir(fila, columna)) {
+                            System.out.println("Game Over!");
+                        }
+
+                    }
+                });
+            }
+        }
     }
 
 }

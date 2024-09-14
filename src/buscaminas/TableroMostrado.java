@@ -85,7 +85,7 @@ public class TableroMostrado {
                 if (esValido(newFila, newCol) && matriz[newFila][newCol] == VACIO) {
                     matriz[newFila][newCol] = matrizSecreta[newFila][newCol];
 
-                    if (matriz[newFila][newCol] == CERO) {
+                    if (matrizSecreta[newFila][newCol] == CERO) {
                         descubrirCeros(newFila, newCol);
                     }
                 }

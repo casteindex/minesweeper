@@ -25,14 +25,14 @@ public class GUI {
 
     JFrame frame = new JFrame();
     JPanel minas_panel = new JPanel();
-    JButton[][] matriz;
+    JButton[][] buttons;
 
     // Constructor
     public GUI(TableroSecreto tableroSecreto) {
         this.matrizSecreta = tableroSecreto.getMatriz();
         this.filas = matrizSecreta.length;
         this.columnas = matrizSecreta[0].length;
-        this.matriz = new JButton[filas][columnas]; // Inicializar matriz de botones
+        this.buttons = new JButton[filas][columnas]; // Inicializar buttons de botones
 
         // JFrame
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -47,27 +47,64 @@ public class GUI {
         frame.setVisible(true); // Mostrar JFrame después de agregar el contenido
     }
 
-//    @Override
-//    public void actionPerformed(ActionEvent e) {
-//        for (int i = 0; i < filas; i++) {
-//            for (int j = 0; j < columnas; j++) {
-//                if (e.getSource() == matriz[i][j]) {
-//                    if (!descubrir(i, j)) { // Devuelve si perdió
-//                        System.out.println("Game Over!");
-//                    }
-//                }
-//            }
-//        }
-//    }
+    private void llenarButtonPanel() {
+        for (int i = 0; i < filas; i++) {
+            for (int j = 0; j < columnas; j++) {
+
+                JButton button = new JButton("");
+                button.setFocusPainted(false); // Elimina rectángulo de enfoque
+                button.setPreferredSize(new Dimension(45, 45));
+
+                buttons[i][j] = button;
+                minas_panel.add(button);
+
+                addClickEvents(button, i, j);
+            }
+        }
+    }
+
+    public void addClickEvents(JButton button, int fila, int columna) {
+        button.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                if (SwingUtilities.isLeftMouseButton(e)) { // Click normal
+                    handleClickIzquierdo(button, fila, columna);
+                } else if (SwingUtilities.isRightMouseButton(e)) { // Click derecho
+                    toggleBandera(button);
+                }
+            }
+        });
+    }
+
+    public void handleClickIzquierdo(JButton button, int fila, int columna) {
+        if (!descubrir(fila, columna)) {
+            System.out.println("Game Over!");
+        }
+    }
+
+    public void toggleBandera(JButton button) {
+        // Toggle bandera
+        if (button.getText().equals("")) {
+            button.setText(Character.toString(FLAG));
+        } else if (button.getText().equals(Character.toString(FLAG))) {
+            button.setText("");
+        }
+    }
+
     public boolean descubrir(int x, int y) {
-        // Si tiene una bomba
+        // Si tiene una bandera, continuar
+        if (buttons[x][y].getText().equals(Character.toString(FLAG))) {
+            return true; // Continuar sin acción
+        }
+
+        // Si tiene una bomba, pierde
         if (matrizSecreta[x][y] == MINA) {
-            matriz[x][y].setText(Character.toString(MINA));
+            buttons[x][y].setText(Character.toString(MINA));
             return false; // Usuario perdió el juego
         }
 
-        // Mostrar el numero de la matriz secreta
-        matriz[x][y].setText(Character.toString(matrizSecreta[x][y]));
+        // Mostrar el numero de la buttons secreta
+        buttons[x][y].setText(Character.toString(matrizSecreta[x][y]));
 
         // Si tiene un cero (mostrar todos los otros ceros y celdas vecinas)
         if (matrizSecreta[x][y] == CERO) {
@@ -86,53 +123,19 @@ public class GUI {
                 int newFila = fila + di;
                 int newCol = columna + dj;
 
-                if (esValido(newFila, newCol) && matriz[newFila][newCol].getText().isBlank()) {
-                    matriz[newFila][newCol].setText(Character.toString(matrizSecreta[newFila][newCol]));
-
-                    if (matrizSecreta[newFila][newCol] == CERO) {
-                        descubrirCeros(newFila, newCol);
-                    }
+                if (esValido(newFila, newCol) && buttons[newFila][newCol].getText().isBlank()) {
+                    /* descubrir() llama al método descubrirCeros si encuentra  un
+                    cero (método recursivo)*/
+                    descubrir(newFila, newCol);
                 }
             }
         }
     }
 
     private boolean esValido(int fila, int columna) {
-        /* Asegurarse de que la celda evaluada esté dentro de la matriz para
+        /* Asegurarse de que la celda evaluada esté dentro de la buttons para
         evitar OutOfBoundExceptions */
         return fila >= 0 && fila < filas && columna >= 0 && columna < columnas;
-    }
-
-    private void llenarButtonPanel() {
-        for (int i = 0; i < filas; i++) {
-            for (int j = 0; j < columnas; j++) {
-
-                JButton button = new JButton("");
-                button.setFocusPainted(false); // Elimina rectángulo de enfoque
-                button.setPreferredSize(new Dimension(45, 45));
-
-                matriz[i][j] = button;
-                minas_panel.add(button);
-
-                /* Nota: para inner classes (clases anónimas) como el ActionListener,
-                Java necesita que los parámetros sean finales (o "efectivamente finales")
-                por lo que no se pueden usar `i` y `j` porque se siguen modificando
-                en el for loop. Copiandolas, se hacen "efectivamente finales"*/
-                final int fila = i;
-                final int columna = j;
-
-                // Click normal
-                matriz[i][j].addActionListener(new ActionListener() {
-                    @Override
-                    public void actionPerformed(ActionEvent e) {
-                        if (!descubrir(fila, columna)) {
-                            System.out.println("Game Over!");
-                        }
-
-                    }
-                });
-            }
-        }
     }
 
 }

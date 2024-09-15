@@ -15,23 +15,31 @@ import javax.swing.*;
 public class GUI {
 
     // Atributos
-    private final int filas;
-    private final int columnas;
-    private final char[][] matrizSecreta;
+    // Obtenidos del tableroSecreto
+    private TableroSecreto tableroSecreto;
+    private char[][] matrizSecreta;
+    private int filas;
+    private int columnas;
+    private int cantMinas;
     private final char MINA = 'M';
     private final char CERO = '0';
 
-    private int minasRestantes;
+    // Del juego actual
     private int celdasReveladas = 0;
     private boolean tableroBloqueado = false;
+
+    private int minasRestantes;
+    private JLabel minasLabel;
+    private JButton faceButton;
+    private JLabel tiempoLabel;
+
+    private Timer timer;
+    private int tiempo = 0;
+    private boolean isPrimerClick = true;
 
     JFrame frame = new JFrame();
     JPanel minas_panel = new JPanel();
     JButton[][] buttons;
-
-    private JLabel minasLabel;
-    private JButton faceButton;
-    private JLabel tiempoLabel;
 
     // Constantes (Iconos)
     private final ImageIcon TileIcon = new ImageIcon("./icons/T.png");
@@ -49,10 +57,12 @@ public class GUI {
 
     // Constructor
     public GUI(TableroSecreto tableroSecreto) {
+        this.tableroSecreto = tableroSecreto;
         this.matrizSecreta = tableroSecreto.getMatriz();
         this.filas = tableroSecreto.getFilas();
         this.columnas = tableroSecreto.getColumnas();
-        this.minasRestantes = tableroSecreto.getMinas();
+        this.cantMinas = tableroSecreto.getMinas();
+        this.minasRestantes = cantMinas;
         this.buttons = new JButton[filas][columnas]; // Inicializar buttons de botones
 
         // Cargar imágenes de números al array
@@ -103,6 +113,10 @@ public class GUI {
             @Override
             public void mousePressed(MouseEvent e) {
                 if (SwingUtilities.isLeftMouseButton(e)) { // Click normal
+                    if (isPrimerClick) {
+                        startTimer();
+                        isPrimerClick = false;
+                    }
                     if (!tableroBloqueado) {
                         faceButton.setIcon(SopresaIcon);
                         descubrir(fila, columna);
@@ -144,7 +158,6 @@ public class GUI {
             buttons[x][y].setIcon(MinaRojaIcon);
             return;
         }
-
         // Mostrar imágen del número que corresponde al de la matrizSecreta
         buttons[x][y].setIcon(numerosIcons[Character.getNumericValue(matrizSecreta[x][y])]);
 
@@ -176,8 +189,8 @@ public class GUI {
     }
 
     public void juegoPerdido() {
-        System.out.println("Game over");
         tableroBloqueado = true;
+        timer.stop();
         faceButton.setIcon(MuertoIcon);
 
         for (int i = 0; i < filas; i++) {
@@ -194,10 +207,38 @@ public class GUI {
     }
 
     public void juegoGanado() {
-        // Mostrar una 
-        System.out.println("Ganaste");
-        faceButton.setIcon(LentesIcon);
         tableroBloqueado = true;
+        timer.stop();
+        faceButton.setIcon(LentesIcon);
+    }
+
+    public void reiniciarJuego() {
+        // Resetear timempo
+        timer.stop(); // Por si se reinicia sin haber terminado
+        tiempo = 0;
+        isPrimerClick = true;
+        tiempoLabel.setText("Tiempo: " + tiempo);
+
+        // Inicializar matriz de botones
+        for (int i = 0; i < filas; i++) {
+            for (int j = 0; j < columnas; j++) {
+                buttons[i][j].setIcon(TileIcon);
+            }
+        }
+
+        tableroSecreto.inicializarTablero();
+
+        // Resetar variables
+        minasRestantes = cantMinas;
+        minasLabel.setText("Minas: " + minasRestantes);
+        faceButton.setIcon(FelizIcon);
+
+        // Desbloquear tablero
+        tableroBloqueado = false;
+
+        // ========== Descomentar para ver el nuevo tableroSecreto ==========
+        System.out.println();
+        tableroSecreto.print();
     }
 
     private JPanel crearPanelSuperior() {
@@ -220,9 +261,15 @@ public class GUI {
         faceButton.setMinimumSize(new Dimension(50, 50));
         faceButton.setMaximumSize(new Dimension(50, 50));
         faceButton.setFocusPainted(false);
+        faceButton.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mousePressed(MouseEvent e) {
+                reiniciarJuego();
+            }
+        });
 
         // Tiempo (lado derecho)
-        tiempoLabel = new JLabel("Tiempo: 0", SwingConstants.CENTER);
+        tiempoLabel = new JLabel("Tiempo: " + tiempo, SwingConstants.CENTER);
         tiempoLabel.setPreferredSize(new Dimension(135, 60));
         tiempoLabel.setFont(new Font("Arial", Font.PLAIN, 16));
 
@@ -236,6 +283,17 @@ public class GUI {
         // Añadir el topPanel al centro del mainPanel
         mainPanel.add(panelSUperior, BorderLayout.CENTER);
         return mainPanel;
+    }
+
+    private void startTimer() {
+        timer = new Timer(1000, new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                tiempo++;
+                tiempoLabel.setText("Tiempo: " + tiempo);
+            }
+        });
+        timer.start();
     }
 
 }

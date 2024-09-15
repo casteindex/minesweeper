@@ -48,7 +48,8 @@ public class TableroSecreto {
     }
 
     // Métodos
-    public void randomize() {
+    public void inicializarTablero() {
+        limpiarTablero(); // Borrar cualquier mina presente
         // Generar minas
         for (int i = 0; i < minas; i++) {
             colocarMina();
@@ -100,6 +101,14 @@ public class TableroSecreto {
         /* Asegurarse de que la celda evaluada esté dentro de la matriz para
         evitar OutOfBoundExceptions */
         return fila >= 0 && fila < filas && columna >= 0 && columna < columnas;
+    }
+
+    public void limpiarTablero() {
+        for (int i = 0; i < filas; i++) {
+            for (int j = 0; j < columnas; j++) {
+                matriz[i][j] = ' ';
+            }
+        }
     }
 
     public void print() {

@@ -25,26 +25,27 @@ public class GUI {
     private int celdasReveladas = 0;
     private boolean tableroBloqueado = false;
 
-    private final ImageIcon tileIcon = new ImageIcon("./icons/T.png");
-    private final ImageIcon flagIcon = new ImageIcon("./icons/F.png");
-    private final ImageIcon mineIcon = new ImageIcon("./icons/M.png");
-    private final ImageIcon redMineIcon = new ImageIcon("./icons/MR.png");
-    private final ImageIcon xMineIcon = new ImageIcon("./icons/MX.png");
-
-    private final ImageIcon happyIcon = new ImageIcon("./icons/face-happy.png");
-    private final ImageIcon surpriseIcon = new ImageIcon("./icons/surprise-happy.png");
-    private final ImageIcon glassesIcon = new ImageIcon("./icons/glasses-happy.png");
-    private final ImageIcon deadIcon = new ImageIcon("./icons/dead-happy.png");
-
-    private final ImageIcon[] numberIcons = new ImageIcon[9]; // Númeos del 0 al 8
-
     JFrame frame = new JFrame();
     JPanel minas_panel = new JPanel();
     JButton[][] buttons;
 
-    private JLabel minesLeftLabel;
+    private JLabel minasLabel;
     private JButton faceButton;
-    private JLabel timerLabel;
+    private JLabel tiempoLabel;
+
+    // Constantes (Iconos)
+    private final ImageIcon TileIcon = new ImageIcon("./icons/T.png");
+    private final ImageIcon FlagIcon = new ImageIcon("./icons/F.png");
+    private final ImageIcon MinaIcon = new ImageIcon("./icons/M.png");
+    private final ImageIcon MinaRojaIcon = new ImageIcon("./icons/MR.png");
+    private final ImageIcon MinaXIcon = new ImageIcon("./icons/MX.png");
+
+    private final ImageIcon FelizIcon = new ImageIcon("./icons/face-happy.png");
+    private final ImageIcon SopresaIcon = new ImageIcon("./icons/face-surprise.png");
+    private final ImageIcon LentesIcon = new ImageIcon("./icons/face-glasses.png");
+    private final ImageIcon MuertoIcon = new ImageIcon("./icons/face-dead.png");
+
+    private final ImageIcon[] numerosIcons = new ImageIcon[9]; // Númeos del 0 al 8
 
     // Constructor
     public GUI(TableroSecreto tableroSecreto) {
@@ -55,17 +56,18 @@ public class GUI {
         this.buttons = new JButton[filas][columnas]; // Inicializar buttons de botones
 
         // Cargar imágenes de números al array
-        for (int i = 0; i < numberIcons.length; i++) {
-            numberIcons[i] = new ImageIcon("./icons/" + i + ".png");
+        for (int i = 0; i < numerosIcons.length; i++) {
+            numerosIcons[i] = new ImageIcon("./icons/" + i + ".png");
         }
 
         // JFrame
         frame.setSize(400, 500);
         frame.setResizable(false);
+        frame.setTitle("Buscaminas");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
         // Info JPanel
-        JPanel topPanel = createTopPanel();
+        JPanel topPanel = crearPanelSuperior();
         frame.add(topPanel, BorderLayout.NORTH); // Pegar arriba
 
         // Minas JPanel
@@ -84,8 +86,8 @@ public class GUI {
 
                 JButton button = new JButton();
                 button.setFocusPainted(false); // Elimina rectángulo de enfoque
-                button.setPreferredSize(new Dimension(34, 34));
-                button.setIcon(tileIcon);
+                button.setPreferredSize(new Dimension(35, 35));
+                button.setIcon(TileIcon);
 
                 buttons[i][j] = button;
                 minas_panel.add(button);
@@ -102,6 +104,7 @@ public class GUI {
             public void mousePressed(MouseEvent e) {
                 if (SwingUtilities.isLeftMouseButton(e)) { // Click normal
                     if (!tableroBloqueado) {
+                        faceButton.setIcon(SopresaIcon);
                         descubrir(fila, columna);
                     }
 
@@ -111,29 +114,39 @@ public class GUI {
                     }
                 }
             }
+
+            @Override
+            public void mouseReleased(MouseEvent e) {
+                if (!tableroBloqueado) {
+                    faceButton.setIcon(FelizIcon);
+                }
+            }
         });
     }
 
     public void toggleBandera(JButton button) {
-        if (button.getIcon().equals(tileIcon)) {
-            button.setIcon(flagIcon);
-        } else if (button.getIcon().equals(flagIcon)) {
-            button.setIcon(tileIcon);
+        if (button.getIcon().equals(TileIcon)) {
+            button.setIcon(FlagIcon);
+            minasRestantes--;
+        } else if (button.getIcon().equals(FlagIcon)) {
+            button.setIcon(TileIcon);
+            minasRestantes++;
         }
+        minasLabel.setText("Minas: " + minasRestantes);
     }
 
     public void descubrir(int x, int y) {
-        if (buttons[x][y].getIcon().equals(flagIcon)) {
+        if (buttons[x][y].getIcon().equals(FlagIcon)) {
             return;
         }
         if (matrizSecreta[x][y] == MINA) {
             juegoPerdido();
-            buttons[x][y].setIcon(redMineIcon);
+            buttons[x][y].setIcon(MinaRojaIcon);
             return;
         }
 
         // Mostrar imágen del número que corresponde al de la matrizSecreta
-        buttons[x][y].setIcon(numberIcons[Character.getNumericValue(matrizSecreta[x][y])]);
+        buttons[x][y].setIcon(numerosIcons[Character.getNumericValue(matrizSecreta[x][y])]);
 
         if (matrizSecreta[x][y] == CERO) {
             descubrirCeros(x, y);
@@ -149,7 +162,7 @@ public class GUI {
                 int newFila = fila + di;
                 int newCol = columna + dj;
 
-                if (esValido(newFila, newCol) && buttons[newFila][newCol].getIcon().equals(tileIcon)) {
+                if (esValido(newFila, newCol) && buttons[newFila][newCol].getIcon().equals(TileIcon)) {
                     descubrir(newFila, newCol);
                 }
             }
@@ -165,15 +178,16 @@ public class GUI {
     public void juegoPerdido() {
         System.out.println("Game over");
         tableroBloqueado = true;
+        faceButton.setIcon(MuertoIcon);
 
         for (int i = 0; i < filas; i++) {
             for (int j = 0; j < columnas; j++) {
                 if (matrizSecreta[i][j] == MINA) {
-                    if (!buttons[i][j].getIcon().equals(flagIcon)) {
-                        buttons[i][j].setIcon(mineIcon);
+                    if (!buttons[i][j].getIcon().equals(FlagIcon)) {
+                        buttons[i][j].setIcon(MinaIcon);
                     }
-                } else if (buttons[i][j].getIcon().equals(flagIcon)) {
-                    buttons[i][j].setIcon(xMineIcon);
+                } else if (buttons[i][j].getIcon().equals(FlagIcon)) {
+                    buttons[i][j].setIcon(MinaXIcon);
                 }
             }
         }
@@ -182,44 +196,45 @@ public class GUI {
     public void juegoGanado() {
         // Mostrar una 
         System.out.println("Ganaste");
+        faceButton.setIcon(LentesIcon);
         tableroBloqueado = true;
     }
 
-    private JPanel createTopPanel() {
-        // Se necesita un panel como wrapper para centrar el topPanel horizontalmente
+    private JPanel crearPanelSuperior() {
+        // Se necesita un panel como wrapper para centrar el panelSuperior horizontalmente
         JPanel mainPanel = new JPanel(new BorderLayout());
 
         // Crear el topPanel con ancho fijo
-        JPanel topPanel = new JPanel();
-        topPanel.setPreferredSize(new Dimension(320, 60));
-        topPanel.setLayout(new BoxLayout(topPanel, BoxLayout.X_AXIS)); // Layout horizontal
+        JPanel panelSUperior = new JPanel();
+        panelSUperior.setPreferredSize(new Dimension(320, 60));
+        panelSUperior.setLayout(new BoxLayout(panelSUperior, BoxLayout.X_AXIS)); // Layout horizontal
 
         // Minas restantes (lado izquierdo)
-        minesLeftLabel = new JLabel("Minas: 10", SwingConstants.CENTER);
-        minesLeftLabel.setPreferredSize(new Dimension(135, 60));
-        minesLeftLabel.setFont(new Font("Arial", Font.PLAIN, 16));
+        minasLabel = new JLabel("Minas: " + minasRestantes, SwingConstants.CENTER);
+        minasLabel.setPreferredSize(new Dimension(135, 60));
+        minasLabel.setFont(new Font("Arial", Font.PLAIN, 16));
 
         // Boton de cara (centro)
-        faceButton = new JButton(new ImageIcon("./icons/face-happy.png"));
+        faceButton = new JButton(FelizIcon);
         faceButton.setPreferredSize(new Dimension(50, 50));
         faceButton.setMinimumSize(new Dimension(50, 50));
         faceButton.setMaximumSize(new Dimension(50, 50));
         faceButton.setFocusPainted(false);
 
         // Tiempo (lado derecho)
-        timerLabel = new JLabel("Time: 0", SwingConstants.CENTER);
-        timerLabel.setPreferredSize(new Dimension(135, 60));
-        timerLabel.setFont(new Font("Arial", Font.PLAIN, 16));
+        tiempoLabel = new JLabel("Tiempo: 0", SwingConstants.CENTER);
+        tiempoLabel.setPreferredSize(new Dimension(135, 60));
+        tiempoLabel.setFont(new Font("Arial", Font.PLAIN, 16));
 
         // Añadir componentes al topPanel
-        topPanel.add(minesLeftLabel);
-        topPanel.add(Box.createHorizontalGlue()); // Empujar botón al centro
-        topPanel.add(faceButton);
-        topPanel.add(Box.createHorizontalGlue()); // Empujar tiempo a la derecha
-        topPanel.add(timerLabel);
+        panelSUperior.add(minasLabel);
+        panelSUperior.add(Box.createHorizontalGlue()); // Empujar botón al centro
+        panelSUperior.add(faceButton);
+        panelSUperior.add(Box.createHorizontalGlue()); // Empujar tiempo a la derecha
+        panelSUperior.add(tiempoLabel);
 
         // Añadir el topPanel al centro del mainPanel
-        mainPanel.add(topPanel, BorderLayout.CENTER);
+        mainPanel.add(panelSUperior, BorderLayout.CENTER);
         return mainPanel;
     }
 

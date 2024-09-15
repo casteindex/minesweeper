@@ -19,13 +19,14 @@ public class GUI {
     private final int columnas;
     private final char[][] matrizSecreta;
     private final char MINA = 'M';
-    private final char FLAG = 'F';
     private final char CERO = '0';
-    private final String VACIO = "";
+    private boolean tableroBloqueado = false;
 
     private final ImageIcon tileIcon = new ImageIcon("./icons/T.png");
     private final ImageIcon flagIcon = new ImageIcon("./icons/F.png");
     private final ImageIcon mineIcon = new ImageIcon("./icons/M.png");
+    private final ImageIcon redMineIcon = new ImageIcon("./icons/MR.png");
+    private final ImageIcon xMineIcon = new ImageIcon("./icons/MX.png");
     private final ImageIcon[] numberIcons = new ImageIcon[9]; // Númeos del 0 al 8
 
     JFrame frame = new JFrame();
@@ -75,52 +76,65 @@ public class GUI {
     }
 
     public void addClickEvents(JButton button, int fila, int columna) {
+
         button.addMouseListener(new MouseAdapter() {
             @Override
             public void mousePressed(MouseEvent e) {
                 if (SwingUtilities.isLeftMouseButton(e)) { // Click normal
-                    handleClickIzquierdo(button, fila, columna);
+                    if (!tableroBloqueado) {
+                        descubrir(fila, columna);
+                    }
+
                 } else if (SwingUtilities.isRightMouseButton(e)) { // Click derecho
-                    toggleBandera(button);
+                    if (!tableroBloqueado) {
+                        toggleBandera(button);
+                    }
                 }
             }
         });
     }
 
-    public void handleClickIzquierdo(JButton button, int fila, int columna) {
-        if (!descubrir(fila, columna)) {
-            System.out.println("Game Over!");
-        }
-    }
-
     public void toggleBandera(JButton button) {
-        if (button.getIcon() == null || button.getIcon().equals(tileIcon)) {
+        if (button.getIcon().equals(tileIcon)) {
             button.setIcon(flagIcon);
         } else if (button.getIcon().equals(flagIcon)) {
             button.setIcon(tileIcon);
         }
     }
 
-    public boolean descubrir(int x, int y) {
-        // Si tiene una bandera, continuar
+    public void descubrir(int x, int y) {
         if (buttons[x][y].getIcon().equals(flagIcon)) {
-            return true; // Continuar sin acción
+            return;
         }
-
-        // Si tiene una bomba, pierde
         if (matrizSecreta[x][y] == MINA) {
-            buttons[x][y].setIcon(mineIcon);
-            return false; // Usuario perdió el juego
+            gameOver();
+            buttons[x][y].setIcon(redMineIcon);
+            return;
         }
 
-        // Mostrar el numero de la buttons secreta
+        // Mostrar imágen del número que corresponde al de la matrizSecreta
         buttons[x][y].setIcon(numberIcons[Character.getNumericValue(matrizSecreta[x][y])]);
 
-        // Si tiene un cero (mostrar todos los otros ceros y celdas vecinas)
         if (matrizSecreta[x][y] == CERO) {
             descubrirCeros(x, y);
         }
-        return true; // El juego continúa
+    }
+
+    public void gameOver() {
+        System.out.println("Game over");
+        tableroBloqueado = true;
+
+        for (int i = 0; i < filas; i++) {
+            for (int j = 0; j < columnas; j++) {
+                if (matrizSecreta[i][j] == MINA) {
+                    if (!buttons[i][j].getIcon().equals(flagIcon)) {
+                        buttons[i][j].setIcon(mineIcon);
+                    }
+                } else if (buttons[i][j].getIcon().equals(flagIcon)) {
+                    buttons[i][j].setIcon(xMineIcon);
+                }
+            }
+        }
     }
 
     private void descubrirCeros(int fila, int columna) {
@@ -129,13 +143,10 @@ public class GUI {
                 if (di == 0 && dj == 0) { // Saltar el centro de la celda
                     continue;
                 }
-
                 int newFila = fila + di;
                 int newCol = columna + dj;
 
                 if (esValido(newFila, newCol) && buttons[newFila][newCol].getIcon().equals(tileIcon)) {
-                    /* descubrir() llama al método descubrirCeros si encuentra  un
-                    cero (método recursivo)*/
                     descubrir(newFila, newCol);
                 }
             }

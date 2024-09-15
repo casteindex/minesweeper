@@ -15,10 +15,10 @@ public class TableroMostrado {
     private final int columnas;
     private final char[][] matriz;
     private final char[][] matrizSecreta;
-    private static final char MINA = 'M';
-    private static final char FLAG = 'F';
-    private static final char CERO = '0';
-    private static final char VACIO = ' ';
+    private final char MINA = 'M';
+    private final char FLAG = 'F';
+    private final char CERO = '0';
+    private final char VACIO = ' ';
 
     // Constructor
     public TableroMostrado(int filas, int columnas, TableroSecreto tableroSecreto) {

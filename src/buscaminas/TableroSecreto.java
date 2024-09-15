@@ -19,8 +19,8 @@ public class TableroSecreto {
     private final int columnas;
     private final int minas;
     private final char[][] matriz;
-    private static final char MINA = 'M';
-    private static final char CERO = '0';
+    private final char MINA = 'M';
+    private final char CERO = '0';
 
     // Constructor
     public TableroSecreto(int filas, int columnas, int minas) {

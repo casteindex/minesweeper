@@ -16,11 +16,11 @@ public class GUI {
 
     // Atributos
     // Obtenidos del tableroSecreto
-    private TableroSecreto tableroSecreto;
-    private char[][] matrizSecreta;
-    private int filas;
-    private int columnas;
-    private int cantMinas;
+    private final TableroSecreto tableroSecreto;
+    private final char[][] matrizSecreta;
+    private final int filas;
+    private final int columnas;
+    private final int cantMinas;
     private final char MINA = 'M';
     private final char CERO = '0';
 
@@ -74,6 +74,7 @@ public class GUI {
         frame.setSize(400, 500);
         frame.setResizable(false);
         frame.setTitle("Buscaminas");
+        frame.setIconImage(FlagIcon.getImage());
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
         // Info JPanel
@@ -108,7 +109,6 @@ public class GUI {
     }
 
     public void addClickEvents(JButton button, int fila, int columna) {
-
         button.addMouseListener(new MouseAdapter() {
             @Override
             public void mousePressed(MouseEvent e) {
@@ -150,17 +150,24 @@ public class GUI {
     }
 
     public void descubrir(int x, int y) {
+        if (!buttons[x][y].getIcon().equals(TileIcon)) {
+            return; // Saltar si la celda ya ha sido descubierta
+        }
         if (buttons[x][y].getIcon().equals(FlagIcon)) {
-            return;
+            return; // Saltar si la celda tiene una bandera
         }
         if (matrizSecreta[x][y] == MINA) {
             juegoPerdido();
             buttons[x][y].setIcon(MinaRojaIcon);
             return;
         }
-        // Mostrar imágen del número que corresponde al de la matrizSecreta
-        buttons[x][y].setIcon(numerosIcons[Character.getNumericValue(matrizSecreta[x][y])]);
 
+        // Revelar celda
+        buttons[x][y].setIcon(numerosIcons[Character.getNumericValue(matrizSecreta[x][y])]);
+        celdasReveladas++;
+        if (isGanador()) { // Revisar si el jugador ganó
+            juegoGanado();
+        }
         if (matrizSecreta[x][y] == CERO) {
             descubrirCeros(x, y);
         }
@@ -206,6 +213,24 @@ public class GUI {
         }
     }
 
+    public boolean isGanador() {
+        int banderas = 0;
+        int tiles = 0;
+
+        for (int i = 0; i < filas; i++) {
+            for (int j = 0; j < columnas; j++) {
+                if (buttons[i][j].getIcon().equals(FlagIcon)) {
+                    banderas++;
+                }
+                if (buttons[i][j].getIcon().equals(TileIcon)) {
+                    tiles++;
+                }
+            }
+        }
+
+        return banderas + tiles == cantMinas;
+    }
+
     public void juegoGanado() {
         tableroBloqueado = true;
         timer.stop();
@@ -232,8 +257,6 @@ public class GUI {
         minasRestantes = cantMinas;
         minasLabel.setText("Minas: " + minasRestantes);
         faceButton.setIcon(FelizIcon);
-
-        // Desbloquear tablero
         tableroBloqueado = false;
 
         // ========== Descomentar para ver el nuevo tableroSecreto ==========

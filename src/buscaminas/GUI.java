@@ -21,7 +21,12 @@ public class GUI {
     private final char MINA = 'M';
     private final char FLAG = 'F';
     private final char CERO = '0';
-    private final char VACIO = ' ';
+    private final String VACIO = "";
+
+    private final ImageIcon tileIcon = new ImageIcon("./icons/T.png");
+    private final ImageIcon flagIcon = new ImageIcon("./icons/F.png");
+    private final ImageIcon mineIcon = new ImageIcon("./icons/M.png");
+    private final ImageIcon[] numberIcons = new ImageIcon[9]; // Númeos del 0 al 8
 
     JFrame frame = new JFrame();
     JPanel minas_panel = new JPanel();
@@ -33,6 +38,11 @@ public class GUI {
         this.filas = matrizSecreta.length;
         this.columnas = matrizSecreta[0].length;
         this.buttons = new JButton[filas][columnas]; // Inicializar buttons de botones
+
+        // Cargar imágenes de números al array
+        for (int i = 0; i < numberIcons.length; i++) {
+            numberIcons[i] = new ImageIcon("./icons/" + i + ".png");
+        }
 
         // JFrame
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -51,9 +61,10 @@ public class GUI {
         for (int i = 0; i < filas; i++) {
             for (int j = 0; j < columnas; j++) {
 
-                JButton button = new JButton("");
+                JButton button = new JButton();
                 button.setFocusPainted(false); // Elimina rectángulo de enfoque
-                button.setPreferredSize(new Dimension(45, 45));
+                button.setPreferredSize(new Dimension(35, 35));
+                button.setIcon(tileIcon);
 
                 buttons[i][j] = button;
                 minas_panel.add(button);
@@ -66,7 +77,7 @@ public class GUI {
     public void addClickEvents(JButton button, int fila, int columna) {
         button.addMouseListener(new MouseAdapter() {
             @Override
-            public void mouseClicked(MouseEvent e) {
+            public void mousePressed(MouseEvent e) {
                 if (SwingUtilities.isLeftMouseButton(e)) { // Click normal
                     handleClickIzquierdo(button, fila, columna);
                 } else if (SwingUtilities.isRightMouseButton(e)) { // Click derecho
@@ -83,28 +94,27 @@ public class GUI {
     }
 
     public void toggleBandera(JButton button) {
-        // Toggle bandera
-        if (button.getText().equals("")) {
-            button.setText(Character.toString(FLAG));
-        } else if (button.getText().equals(Character.toString(FLAG))) {
-            button.setText("");
+        if (button.getIcon() == null || button.getIcon().equals(tileIcon)) {
+            button.setIcon(flagIcon);
+        } else if (button.getIcon().equals(flagIcon)) {
+            button.setIcon(tileIcon);
         }
     }
 
     public boolean descubrir(int x, int y) {
         // Si tiene una bandera, continuar
-        if (buttons[x][y].getText().equals(Character.toString(FLAG))) {
+        if (buttons[x][y].getIcon().equals(flagIcon)) {
             return true; // Continuar sin acción
         }
 
         // Si tiene una bomba, pierde
         if (matrizSecreta[x][y] == MINA) {
-            buttons[x][y].setText(Character.toString(MINA));
+            buttons[x][y].setIcon(mineIcon);
             return false; // Usuario perdió el juego
         }
 
         // Mostrar el numero de la buttons secreta
-        buttons[x][y].setText(Character.toString(matrizSecreta[x][y]));
+        buttons[x][y].setIcon(numberIcons[Character.getNumericValue(matrizSecreta[x][y])]);
 
         // Si tiene un cero (mostrar todos los otros ceros y celdas vecinas)
         if (matrizSecreta[x][y] == CERO) {
@@ -123,7 +133,7 @@ public class GUI {
                 int newFila = fila + di;
                 int newCol = columna + dj;
 
-                if (esValido(newFila, newCol) && buttons[newFila][newCol].getText().isBlank()) {
+                if (esValido(newFila, newCol) && buttons[newFila][newCol].getIcon().equals(tileIcon)) {
                     /* descubrir() llama al método descubrirCeros si encuentra  un
                     cero (método recursivo)*/
                     descubrir(newFila, newCol);

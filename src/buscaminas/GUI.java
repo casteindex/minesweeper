@@ -251,7 +251,7 @@ public class GUI {
             }
         }
 
-        tableroSecreto.inicializarTablero();
+        tableroSecreto.inicializar();
 
         // Resetar variables
         minasRestantes = cantMinas;
@@ -259,9 +259,8 @@ public class GUI {
         faceButton.setIcon(FelizIcon);
         tableroBloqueado = false;
 
-        // ========== Descomentar para ver el nuevo tableroSecreto ==========
-        System.out.println();
-        tableroSecreto.print();
+//        System.out.println();
+//        tableroSecreto.print(); // Descomentar para debuggear
     }
 
     private JPanel crearPanelSuperior() {

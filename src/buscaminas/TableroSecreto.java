@@ -48,7 +48,7 @@ public class TableroSecreto {
     }
 
     // Métodos
-    public void inicializarTablero() {
+    public void inicializar() {
         limpiarTablero(); // Borrar cualquier mina presente
         // Generar minas
         for (int i = 0; i < minas; i++) {

@@ -22,12 +22,10 @@ public class Buscaminas {
 
         // Generar tablero secreto
         TableroSecreto tableroSecreto = new TableroSecreto(filas, columnas, minas);
-        tableroSecreto.inicializarTablero();
+        tableroSecreto.inicializar();
 
-        // ========== Descomentar para ver el nuevo tableroSecreto ==========
-        System.out.println("----- Tablero Secreto -----");
-        tableroSecreto.print();
-
+//        System.out.println("----- Tablero Secreto -----");
+//        tableroSecreto.print(); // Descomentar para debuggear
         GUI gui = new GUI(tableroSecreto);
 
     }

@@ -20,7 +20,7 @@
   set par(justify: true, leading: 0.9em)
   set text(fs-400, font: text-font)
   // Headings
-  set heading(numbering: "1.1.")
+  set heading(numbering: "1.1.", supplement: "Sección")
   show heading: it => {
     set text(fs-600, font: heading-font)
     set par(justify: false, leading: 0.4em)
@@ -60,7 +60,7 @@
   show link: set text(fill: color-accent)
   
   show raw: it => {
-    block(fill: luma(245), width: 100%, inset: 10pt, radius: 4pt)[
+    block(fill: luma(248), width: 100%, inset: 10pt, radius: 4pt)[
       #it
     ]
   } 
